@@ -8,9 +8,6 @@ compas_scores_two_year= pd.read_csv("compas_scores_two_years.csv",  lineterminat
 # 2. c_charge_degree is not missing
 # 3. score_text is not missing
 # 4. is_recid is not missing -1 means missingd
-# juvinile_felonies  = df[['juv_fel_count']]
-# juvinile_misconduct  = df[['juv_misd_count']]
-# juvinile_other  = df[['juv_other_count']]
 
 df= compas_scores_two_year[[ 'juv_fel_count', 'juv_misd_count', 'juv_other_count' ,'age', 'c_charge_degree','race', 'age_cat', 'score_text', 'sex', 'priors_count', 'days_b_screening_arrest', 'decile_score', 'is_recid',  'c_jail_in', 'c_jail_out',  'v_decile_score','two_year_recid\r']]
 df = df.loc[(df['days_b_screening_arrest'] <= 30) & (df['days_b_screening_arrest'] >= -30) & (df['is_recid'] != -1) & (df['c_charge_degree'] != 'O') & (df['score_text'] != 'N/A')]
@@ -74,7 +71,6 @@ ax[1].set_xlabel('Decile score')
 ax[1].set_ylim(0, 650)
 plt.show()
 
-
 # create some factors for logistic regression
 df_c_charge_degree = df[['c_charge_degree']]
 df_age_cat = df[['age_cat']]
@@ -84,6 +80,7 @@ df_age_race = df[['race']]
 df_score = df[['score_text']]
 
 
+length_factor, u_length_degree = pd.factorize(df['length_of_stay'])
 #Change charge degree into int values
 crime_factor, u_charge_degree = pd.factorize(df_c_charge_degree['c_charge_degree'])
 #Change cage categories into int values
@@ -92,13 +89,13 @@ f_age_cat, u_age_cat= pd.factorize(df_age_cat['age_cat'])
 f_age_cat = f_age_cat - 1
 #Change gender to numerical values
 f_gender, uniques_gender  = pd.factorize(df_sex['sex'])
-
 # create a new maxtrix with the factors
 juvinile_felonies  = df[['juv_fel_count']]
 juvinile_misconduct  = df[['juv_misd_count']]
 juvinile_other  = df[['juv_other_count']]
 priors_count  = df[['priors_count']]
 two_year_recid = df[['two_year_recid\r']]
+decile_score = df['decile_score']
 
 #factorize race TO BE DISCUSSED
 # f_race_AA, u_race_AA= pd.factorize(df_age_race['race'] == 'African-American')
@@ -108,34 +105,15 @@ two_year_recid = df[['two_year_recid\r']]
 # print("Numeric Representation : \n", f_race_AA)
 # print("Unique Values : \n", u_race_AA)
 
-X = np.column_stack(( f_age_cat, crime_factor, f_gender, priors_count, two_year_recid, juvinile_felonies, juvinile_misconduct, juvinile_other))
 
-decile_score = df['decile_score']
-
+X = np.column_stack(( f_age_cat, crime_factor, f_gender, priors_count, juvinile_felonies, juvinile_misconduct, juvinile_other, length_factor))
 # build a binmal logistic regression model to explain the score text given the factors
 from sklearn.linear_model import LogisticRegression
 model  = LogisticRegression(penalty='l2', C=0.1, max_iter=100)
-model.fit(X, decile_score)
+model.fit(X, two_year_recid)
 ypred = model.predict(X)
 #print summary
 print('intercept', model.intercept_)
 #print coefficients with corresponding factors
 print('coefficients', model.coef_)
-print('Accuracy', model.score(X, decile_score))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+print('Accuracy', model.score(X, two_year_recid))
