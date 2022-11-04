@@ -8,8 +8,11 @@ compas_scores_two_year= pd.read_csv("compas_scores_two_years.csv",  lineterminat
 # 2. c_charge_degree is not missing
 # 3. score_text is not missing
 # 4. is_recid is not missing -1 means missingd
+# juvinile_felonies  = df[['juv_fel_count']]
+# juvinile_misconduct  = df[['juv_misd_count']]
+# juvinile_other  = df[['juv_other_count']]
 
-df= compas_scores_two_year[[ 'age', 'c_charge_degree','race', 'age_cat', 'score_text', 'sex', 'priors_count', 'days_b_screening_arrest', 'decile_score', 'is_recid',  'c_jail_in', 'c_jail_out',  'v_decile_score','two_year_recid\r']]
+df= compas_scores_two_year[[ 'juv_fel_count', 'juv_misd_count', 'juv_other_count' ,'age', 'c_charge_degree','race', 'age_cat', 'score_text', 'sex', 'priors_count', 'days_b_screening_arrest', 'decile_score', 'is_recid',  'c_jail_in', 'c_jail_out',  'v_decile_score','two_year_recid\r']]
 df = df.loc[(df['days_b_screening_arrest'] <= 30) & (df['days_b_screening_arrest'] >= -30) & (df['is_recid'] != -1) & (df['c_charge_degree'] != 'O') & (df['score_text'] != 'N/A')]
 
 #length of stay in jail
@@ -19,7 +22,6 @@ df['length_of_stay'] = df['length_of_stay'].astype(int)
 print(df['length_of_stay'])
 #correlation between length of stay and decile score
 print('correlation between length of stay and decile score',df['length_of_stay'].corr(df['decile_score']))
-
 
 print('-----------------race split-----------------')
 race  = ['African-American', 'Caucasian', 'Hispanic', 'Asian', 'Native American', 'Other']
@@ -92,6 +94,9 @@ f_age_cat = f_age_cat - 1
 f_gender, uniques_gender  = pd.factorize(df_sex['sex'])
 
 # create a new maxtrix with the factors
+juvinile_felonies  = df[['juv_fel_count']]
+juvinile_misconduct  = df[['juv_misd_count']]
+juvinile_other  = df[['juv_other_count']]
 priors_count  = df[['priors_count']]
 two_year_recid = df[['two_year_recid\r']]
 
@@ -103,7 +108,7 @@ two_year_recid = df[['two_year_recid\r']]
 # print("Numeric Representation : \n", f_race_AA)
 # print("Unique Values : \n", u_race_AA)
 
-X = np.column_stack(( f_age_cat, crime_factor, f_gender, priors_count, two_year_recid  ))
+X = np.column_stack(( f_age_cat, crime_factor, f_gender, priors_count, two_year_recid, juvinile_felonies, juvinile_misconduct, juvinile_other))
 
 decile_score = df['decile_score']
 
