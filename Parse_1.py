@@ -6,18 +6,18 @@ import pandas as pd
 
 
 
-compas_scores_raw= pd.read_csv("compas_score_raw.csv",  lineterminator='\n')
+# compas_scores_raw= pd.read_csv("compas_score_raw.csv",  lineterminator='\n')
 compas_scores_two_year= pd.read_csv("compas_scores_two_years.csv",  lineterminator='\n')
-print('-----------------Compas Scores Raw-----------------')
-print('type',type(compas_scores_raw))
-print('-----------------Compas Scores Two Year-----------------')
-print('type',type(compas_scores_two_year))
+# print('-----------------Compas Scores Raw-----------------')
+# print('type',type(compas_scores_raw))
+# print('-----------------Compas Scores Two Year-----------------')
+# print('type',type(compas_scores_two_year))
 
-#number of rows and columns
-print('-----------------Compas Scores Raw-----------------')
-print('shape',compas_scores_raw.shape)
-print('-----------------Compas Scores Two Year-----------------')
-print('shape',compas_scores_two_year.shape)
+# #number of rows and columns
+# print('-----------------Compas Scores Raw-----------------')
+# print('shape',compas_scores_raw.shape)
+# print('-----------------Compas Scores Two Year-----------------')
+# print('shape',compas_scores_two_year.shape)
 
 
 
