@@ -1,6 +1,3 @@
-from calendar import c
-from pyexpat import model
-from re import L
 import numpy as np
 import pandas as pd
 
@@ -48,7 +45,6 @@ decile = [1,2,3,4,5,6,7,8,9,10]
 import matplotlib.pyplot as plt
 
 # bar plot for decile score for african american and caucasian
-
 df_race_decile_score = df[['race', 'decile_score']]
 df_african = df_race_decile_score[ df_race_decile_score['race'] == 'African-American']
 df_caucasian = df_race_decile_score[ df_race_decile_score['race'] == 'Caucasian']
@@ -121,11 +117,6 @@ print('intercept', model.intercept_)
 #print coefficients with corresponding factors
 print('coefficients', model.coef_)
 print('Accuracy', model.score(X, decile_score))
-
-# import statsmodels.api as sm
-# model = sm.GLM(decile_score, X,  family=sm.families.Binomial())
-# results = model.fit()
-# print(results.summary())
 
 
 
