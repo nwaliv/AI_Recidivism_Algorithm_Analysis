@@ -98,7 +98,7 @@ two_year_recid = df[['two_year_recid\r']]
 decile_score = df['decile_score']
 
 #factorize race TO BE DISCUSSED
-f_race, u_race = pd.factorize(df_age_race['race'])
+# f_race, u_race = pd.factorize(df_age_race['race'])
 # f_race_AA, u_race_AA= pd.factorize(df_age_race['race'] == 'African-American')
 # f_race_C, u_race = pd.factorize(df_age_race['race'] == 'Caucasian')
 #relevel race with reference = 3
@@ -108,8 +108,16 @@ f_race, u_race = pd.factorize(df_age_race['race'])
 #factorise score text
 f_score_text, u_score_text = pd.factorize(df_score['score_text'] != 'Low')
 
-X = np.column_stack((  f_age_cat, crime_factor, f_gender, priors_count, juvinile_felonies, juvinile_misconduct, juvinile_other, length_factor))
-x_lables = ['Age catagory', 'Crime factor', 'Gender factor', 'Priors count', 'Juvinile felonies', 'Juvinile misconduct', 'Juvinile other', 'Length of stay']
+ethnicity =[]
+
+for race in df['race']:
+    if race == 'African-American':
+        ethnicity.append(1)
+    else:
+        ethnicity.append(0)
+
+X = np.column_stack((  ethnicity, f_age_cat, crime_factor, f_gender, priors_count, juvinile_felonies, juvinile_misconduct, juvinile_other, length_factor))
+x_lables = ['Race', 'Age catagory', 'Crime factor', 'Gender factor', 'Priors count', 'Juvinile felonies', 'Juvinile misconduct', 'Juvinile other', 'Length of stay']
 
 # split data into train and test
 from sklearn.model_selection import train_test_split
@@ -155,8 +163,6 @@ print('-----------------score-----------------')
 score_pre = round(model.score(X_test, y_test),4)
 print(score_pre)
 
-
-
 #-----------------weigthing of coefficients ----------------
 import matplotlib.pyplot as plt
 fig = plt.figure()
@@ -164,25 +170,15 @@ ax = fig.subplots(1,1)
 
 X_axis = np.arange(len(x_lables))
 
-
 plt.xticks(X_axis, x_lables, rotation=90)
 ax.bar(X_axis - 0.2, coeff_true, 0.4, label='True class')
 ax.bar(X_axis + 0.2, coeff_pred, 0.4, label='Predicted class')
 ax.set_ylabel('Weighting')
 ax.set_title('Weighting of factors')
-ax.legend(['trained with true class (Accurcy:%f)' %score_true, 'trained with predicted class (Accurcy:%f)' %score_pre])
+ax.legend(['Trained with true re-offences (Accurcy:%f)' %score_true, 'Trained with compas predictions (Accurcy:%f)' %score_pre])
 plt.tight_layout()
 
 plt.show()
-
-
-
-
-
-
-
-
-
 
 
 
