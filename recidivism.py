@@ -6,63 +6,127 @@ import pandas as pd
 
 compas_scores_two_year= pd.read_csv("compas_scores_two_years.csv",  lineterminator='\n')
 
-# Feature selection
-df= compas_scores_two_year[[ 'juv_fel_count', 'juv_misd_count', 'juv_other_count' ,'age', 'c_charge_degree','race', 'age_cat', 'score_text', 'sex', 'priors_count', 'days_b_screening_arrest', 'decile_score', 'is_recid',  'c_jail_in', 'c_jail_out',  'v_decile_score','two_year_recid\r']]
+# Select features from dataset
+df= compas_scores_two_year[[ 'juv_fel_count', 'juv_misd_count', 'juv_other_count' ,'age', 'c_charge_degree','race', 'score_text', 'sex', 'priors_count', 'days_b_screening_arrest', 'decile_score', 'is_recid',  'c_jail_in', 'c_jail_out',  'v_decile_score','two_year_recid\r']]
+# Process the data
 df = df.loc[(df['days_b_screening_arrest'] <= 30) & (df['days_b_screening_arrest'] >= -30) & (df['is_recid'] != -1) & (df['c_charge_degree'] != 'O') & (df['score_text'] != 'N/A')]
 
-#length of stay in jail
+#length of stay in jail 
 df['length_of_stay'] = pd.to_datetime(df['c_jail_out']) - pd.to_datetime(df['c_jail_in'])
 df['length_of_stay'] = df['length_of_stay'].astype('timedelta64[D]')
 df['length_of_stay'] = df['length_of_stay'].astype(int)
-print(df['length_of_stay'])
-
-# create some factors for logistic regression
-df_c_charge_degree = df[['c_charge_degree']]
-df_age_cat = df[['age_cat']]
-df_race = df[['race']]
-df_sex = df[['sex']]
-df_age_race = df[['race']]
-df_score = df[['score_text']]
-
-#Featue engineering for stay length
 length_factor, u_length_degree = pd.factorize(df['length_of_stay'])
-#Change charge degree into int values
+
+quick_stay = []
+short_stay=[]
+medium_stay=[]
+long_stay=[]
+
+for length in length_factor:
+    if length<5:
+        quick_stay.append(1)
+        short_stay.append(0)
+        medium_stay.append(0)
+        long_stay.append(0)
+    elif (length<15):
+        quick_stay.append(0)
+        short_stay.append(1)
+        medium_stay.append(0)
+        long_stay.append(0)
+    elif length<30:
+        quick_stay.append(0)
+        short_stay.append(0)
+        medium_stay.append(1)
+        long_stay.append(0)
+    else:
+        quick_stay.append(0)
+        short_stay.append(0)
+        medium_stay.append(0)
+        long_stay.append(1)
+        
+#Age Category Feature
+df_age = df['age'].astype(int)
+
+twenties_and_less = []
+thirties=[]
+fourties=[]
+fifties_and_more=[]
+
+for age in df_age:
+    if age<30:
+        twenties_and_less.append(1)
+        thirties.append(0)
+        fourties.append(0)
+        fifties_and_more.append(0)
+    elif age<40:
+        twenties_and_less.append(0)
+        thirties.append(1)
+        fourties.append(0)
+        fifties_and_more.append(0)
+    elif age<50:
+        twenties_and_less.append(0)
+        thirties.append(0)
+        fourties.append(1)
+        fifties_and_more.append(0)
+    else:
+        twenties_and_less.append(0)
+        thirties.append(0)
+        fourties.append(0)
+        fifties_and_more.append(1)
+
+
+# Degree of charge feature
+df_c_charge_degree = df[['c_charge_degree']] 
 crime_factor, u_charge_degree = pd.factorize(df_c_charge_degree['c_charge_degree'])
-#Change cage categories into int values
-f_age_cat, u_age_cat= pd.factorize(df_age_cat['age_cat'])
-#relevel age cat with reference = 1
-f_age_cat = f_age_cat - 1
-#Change gender to numerical values
+
+# Gender
+df_sex = df[['sex']]
 f_gender, uniques_gender  = pd.factorize(df_sex['sex'])
-# create a new maxtrix with the factors
-juvinile_felonies  = df[['juv_fel_count']]
-juvinile_misconduct  = df[['juv_misd_count']]
-juvinile_other  = df[['juv_other_count']]
-priors_count  = df[['priors_count']]
-two_year_recid = df[['two_year_recid\r']]
-decile_score = df['decile_score']
 
-#factorize race TO BE DISCUSSED
-# f_race, u_race = pd.factorize(df_age_race['race'])
-# f_race_AA, u_race_AA= pd.factorize(df_age_race['race'] == 'African-American')
-# f_race_C, u_race = pd.factorize(df_age_race['race'] == 'Caucasian')
-#relevel race with reference = 3
-# print('----------------race----------------')
-# print("Numeric Representation : \n", f_race_AA)
-# print("Unique Values : \n", u_race_AA)
-#factorise score text
-f_score_text, u_score_text = pd.factorize(df_score['score_text'] != 'Low')
+# Prior convictions
+juvinile_felonies  = df[['juv_fel_count']].astype(int)
+juvinile_misconduct  = df[['juv_misd_count']].astype(int)
+juvinile_other  = df[['juv_other_count']].astype(int)
+priors_count  = df[['priors_count']].astype(int)
 
-ethnicity =[]
+#Race
+AfAmerican =[]
+Other = []
+Caucasian = []
+Hispanic = []
+
 
 for race in df['race']:
     if race == 'African-American':
-        ethnicity.append(1)
+        AfAmerican.append(1)
+        Caucasian.append(0)
+        Hispanic.append(0)
+        Other.append(0)
+    elif race == 'Caucasian':
+        AfAmerican.append(0)
+        Caucasian.append(1)
+        Hispanic.append(0)
+        Other.append(0)
+    elif race == 'Hispanic':
+        AfAmerican.append(0)
+        Caucasian.append(0)
+        Hispanic.append(1)
+        Other.append(0)
     else:
-        ethnicity.append(0)
+        AfAmerican.append(0)
+        Caucasian.append(0)
+        Hispanic.append(0)
+        Other.append(1)
 
-X = np.column_stack((  ethnicity, f_age_cat, crime_factor, f_gender, priors_count, juvinile_felonies, juvinile_misconduct, juvinile_other, length_factor))
-x_lables = ['Race', 'Age catagory', 'Crime factor', 'Gender factor', 'Priors count', 'Juvinile felonies', 'Juvinile misconduct', 'Juvinile other', 'Length of stay']
+X = np.column_stack((  AfAmerican, Caucasian, Hispanic, Other, crime_factor, f_gender, priors_count, juvinile_felonies, juvinile_misconduct, juvinile_other, quick_stay, short_stay, medium_stay, long_stay, twenties_and_less, thirties, fourties, fifties_and_more))
+
+#For target class
+f_score_text, u_score_text = pd.factorize(df['score_text'] != 'Low')
+#decile_score = df['decile_score']
+two_year_recid = df[['two_year_recid\r']]
+
+
+x_lables = [ 'Crime factor', 'Gender factor', 'Priors count', 'Juvinile felonies', 'Juvinile misconduct', 'Juvinile other', 'Quick stay', 'Short stay', 'Medium stay', 'Long stay', 'Twenties and less', 'Thirties', 'Fourties', 'Fifties and more', 'African American', 'Caucasian', 'Hispanic', 'Other Race']
 
 
 
