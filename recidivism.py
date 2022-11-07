@@ -95,7 +95,6 @@ Other = []
 Caucasian = []
 Hispanic = []
 
-
 for race in df['race']:
     if race == 'African-American':
         AfAmerican.append(1)
