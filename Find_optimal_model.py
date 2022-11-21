@@ -129,134 +129,40 @@ x_lables = [ 'Crime factor', 'Gender factor', 'Priors count', 'Juvinile felonies
 
 
 
-#------------------------- Model Training -------------------------#
-
-# split data into train and test
-from sklearn.model_selection import train_test_split
-X_train, X_test, y_train, y_test = train_test_split(X, two_year_recid, test_size=0.2, random_state=0)
-
-# print size of train and test
-print('-----------------size of train and test-----------------')
-print('X_train', len(X_train))
-print('X_test', len(X_test))
-print('y_train', len(y_train))
-print('y_test', len(y_test))
-
-# logistic regression with true class
-from sklearn.linear_model import LogisticRegression
-model  = LogisticRegression(penalty='l2', C=0.1, max_iter=100)
-model.fit(X_train, np.ravel(y_train))
-y_pred = model.predict(X_test)
-
-print('-----------------coefficients with corresponding labels -----------------')
-
-coeff_true = abs(model.coef_[0])
-for i in range(len(x_lables)):
-    print(x_lables[i], '   ', round( model.coef_[0][i], 4))
 
 
-print('-----------------intercept-----------------')
-print(model.intercept_)
-print('-----------------score-----------------')
-score_true = round(model.score(X_test, y_test),4)
-print(score_true)
-
-# logistic regression with predicted class
-X_train, X_test, y_train, y_test = train_test_split(X, f_score_text, test_size=0.2, random_state=0)
-model  = LogisticRegression(penalty='l2', C=0.1, max_iter=100)
-model.fit(X_train, np.ravel(y_train))
-y_pred = model.predict(X_test)
-
-print('-----------------coefficients with corresponding labels -----------------')
-coeff_pred = abs(model.coef_[0])
-for i in range(len(x_lables)):
-    print(x_lables[i], '   ', round( model.coef_[0][i], 4))
-print('-----------------intercept (bias)-----------------')
-print(model.intercept_)
-print('-----------------score-----------------')
-score_pre = round(model.score(X_test, y_test),4)
-print(score_pre)
+#------ cross validation ------
 
 
-print('coeff_true', np.shape(coeff_true))
+N_range = np.arange(1, 50)
+print(N_range)
+# knn  with true class
+mean_score = []
+from sklearn.neighbors import KNeighborsClassifier
+for i in N_range:
+    knn = KNeighborsClassifier(n_neighbors=i)
+    
+    from sklearn.model_selection import cross_val_score
+    scores = cross_val_score(knn, X, np.ravel(two_year_recid), cv=5)
+    # print('-----------------knn with true class-----------------')
+    # print('cross validation scores', scores)
+    # print('cross validation mean score', scores.mean())
 
-#-----------------View weigthing of coefficients ----------------
+    mean_score.append(scores.mean())
+
 
 
 import matplotlib.pyplot as plt
 fig = plt.figure()
 ax = fig.subplots(1,1)
-
-X_axis = np.arange(len(x_lables))
-
-plt.xticks(X_axis, x_lables, rotation=90)
-ax.bar(X_axis - 0.2, coeff_true, 0.4, label='True class')
-ax.bar(X_axis + 0.2, coeff_pred, 0.4, label='Predicted class')
-ax.set_ylabel('Weighting')
-ax.set_title('Weighting of factors')
-ax.legend(['Trained with true re-offences (Accurcy:%f)' %score_true, 'Trained with compas predictions (Accurcy:%f)' %score_pre])
-plt.tight_layout()
-
+ax.plot(N_range, mean_score)
+ax.set_xlabel('N')
+ax.set_ylabel('Mean score')
+ax.set_title('Mean score for different N')
 plt.show()
 
 
 
-
-
-# ----------------- To see interesting factors in data ----------------
-
-
-
-print('-----------------race split-----------------')
-race  = ['African-American', 'Caucasian', 'Hispanic', 'Asian', 'Native American', 'Other']
-for i in race :
-    print( i,len(df[df['race']== i])/len(df['race']))
-
-# To see spread in re-offence rates
-print ('-----------------Likelihood to re-offend----------------')
-print('low ', len(df[df['score_text'] == 'Low']))
-print('medium ', len(df[df['score_text'] == 'Medium']))
-print('high ', len(df[df['score_text'] == 'High']))
-
-print('-----------------Sex spread-----------------')
-f = pd.crosstab(df['sex'], df['race'])
-print(f)
-
-# find decide score for african american
-print('-----------------decile score for african american-----------------')
-print(df[(df['race']) == 'African-American']['decile_score'].describe())
-
-decile = [1,2,3,4,5,6,7,8,9,10]
-# plot decide score for african american
-# import matplotlib.pyplot as plt
-
-# # bar plot for decile score for african american and caucasian
-# df_race_decile_score = df[['race', 'decile_score']]
-# df_african = df_race_decile_score[ df_race_decile_score['race'] == 'African-American']
-# df_caucasian = df_race_decile_score[ df_race_decile_score['race'] == 'Caucasian']
-# counts_decile_AA = []
-# counts_decile_C = []
-# temp = []
-# for i in decile:
-#     temp = len(df_african[df_african['decile_score'] == i])
-#     counts_decile_AA.append(temp)
-#     temp = len(df_caucasian[df_caucasian['decile_score'] == i])
-#     counts_decile_C.append(temp)
-
-# fig = plt.figure()
-# ax = fig.subplots(1,2)
-# ax[0].bar(decile, counts_decile_AA)
-# ax[0].set_title('African American')
-# ax[1].bar(decile, counts_decile_C)
-# ax[1].set_title('Caucasian')
-
-# ax[0].set_ylabel('Count')
-# ax[0].set_xlabel('Decile score')
-# ax[0].set_ylim(0, 650)
-# ax[1].set_ylabel('Count')
-# ax[1].set_xlabel('Decile score')
-# ax[1].set_ylim(0, 650)
-# plt.show()
 
 
 
