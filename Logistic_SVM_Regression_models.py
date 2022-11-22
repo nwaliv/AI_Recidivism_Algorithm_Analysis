@@ -17,32 +17,32 @@ df['length_of_stay'] = df['length_of_stay'].astype('timedelta64[D]')
 df['length_of_stay'] = df['length_of_stay'].astype(int)
 length_factor, u_length_degree = pd.factorize(df['length_of_stay'])
 
-quick_stay = []
-short_stay=[]
-medium_stay=[]
-long_stay=[]
+days = []
+weeks = []
+months = []
+years = []
 
-for length in length_factor:
-    if length<5:
-        quick_stay.append(1)
-        short_stay.append(0)
-        medium_stay.append(0)
-        long_stay.append(0)
-    elif (length<15):
-        quick_stay.append(0)
-        short_stay.append(1)
-        medium_stay.append(0)
-        long_stay.append(0)
-    elif length<30:
-        quick_stay.append(0)
-        short_stay.append(0)
-        medium_stay.append(1)
-        long_stay.append(0)
+for length in df['length_of_stay']:
+    if length<7:
+        days.append(1)
+        weeks.append(0)
+        months.append(0)
+        years.append(0)
+    elif (length<30):
+        days.append(0)
+        weeks.append(1)
+        months.append(0)
+        years.append(0)
+    elif length<365:
+        days.append(0)
+        weeks.append(0)
+        months.append(1)
+        years.append(0)
     else:
-        quick_stay.append(0)
-        short_stay.append(0)
-        medium_stay.append(0)
-        long_stay.append(1)
+        days.append(0)
+        weeks.append(0)
+        months.append(0)
+        years.append(1)
         
 #Age Category Feature
 df_age = df['age'].astype(int)
@@ -89,6 +89,25 @@ juvinile_misconduct  = df[['juv_misd_count']].astype(int)
 juvinile_other  = df[['juv_other_count']].astype(int)
 priors_count  = df[['priors_count']].astype(int)
 
+one_prior =[]
+multiple_prior = []
+many_prior = []
+# Prior Convictions Feature
+for prior in priors_count:
+    if prior < 2:
+        one_prior.append(1)
+        multiple_prior.append(0)
+        many_prior.append(0)
+    elif prior < 5:
+        one_prior.append(0)
+        multiple_prior.append(1)
+        many_prior.append(0)
+    else:
+        one_prior.append(0)
+        multiple_prior.append(0)
+        many_prior.append(1)
+
+
 #Race
 AfAmerican =[]
 Other = []
@@ -117,7 +136,7 @@ for race in df['race']:
         Hispanic.append(0)
         Other.append(1)
 
-X = np.column_stack((  AfAmerican, Caucasian, Hispanic, Other, crime_factor, f_gender, priors_count, juvinile_felonies, juvinile_misconduct, juvinile_other, quick_stay, short_stay, medium_stay, long_stay, twenties_and_less, thirties, fourties, fifties_and_more))
+X = np.column_stack((  AfAmerican, Caucasian, Hispanic, Other, crime_factor, f_gender, one_prior, multiple_prior, many_prior, juvinile_felonies, juvinile_misconduct, juvinile_other, days, weeks, months, years, twenties_and_less, thirties, fourties, fifties_and_more))
 
 
 #Change this!!!
@@ -127,7 +146,7 @@ f_score_text, u_score_text = pd.factorize(df['score_text'] != 'Low')
 two_year_recid = df[['two_year_recid\r']]
 
 
-x_lables = [ 'Crime factor', 'Gender factor', 'Priors count', 'Juvinile felonies', 'Juvinile misconduct', 'Juvinile other', 'Quick stay', 'Short stay', 'Medium stay', 'Long stay', 'Twenties and less', 'Thirties', 'Fourties', 'Fifties and more', 'African American', 'Caucasian', 'Hispanic', 'Other Race']
+x_lables = [ 'Crime factor', 'Gender factor', 'One Prior', '1<Priors<5','Priors>5', 'Juvinile felonies', 'Juvinile misconduct', 'Juvinile other', 'Jail Days', 'Jail Weeks', 'Jail Months', 'Jail Years', 'Twenties and less', 'Thirties', 'Fourties', 'Fifties and more', 'African American', 'Caucasian', 'Hispanic', 'Other Race']
 
 
 
@@ -237,6 +256,34 @@ ax.set_title('Altering L1 Penalty for Compas Scores')
 plt.legend()
 plt.show()
 
+# from sklearn.svm import LinearSVC
+# for i in C_range:
+#     svm = LinearSVC(C=i, max_iter = 500)
+#     from sklearn.model_selection import cross_val_score
+#     scores = cross_val_score(svm, X, np.ravel(f_score_text), cv=5)
+#     f1 = cross_val_score(svm, X, np.ravel(f_score_text), cv=5, scoring='f1')
+#     # print('-----------------knn with true class-----------------')
+#     # print('cross validation scores', scores)
+#     # print('cross validation mean score', scores.mean())
+#     mean_score.append(scores.mean())
+#     mean_std.append(scores.std())
+#     f1_score.append(f1.mean())
+#     f1_std.append(f1.std())
+
+
+# C_range_text = ["0.0001", "0.001", "0.005", "0.01", "0.1", "1", "10"]
+# import matplotlib.pyplot as plt
+# fig = plt.figure()
+# ax = fig.subplots(1,1)
+# ax.plot(C_range_text, mean_score, label='Accuracy')
+# ax.plot(C_range_text, f1_score, label='F1 score')
+# ax.errorbar(C_range_text, mean_score, yerr=mean_std, fmt='o', label='Accuracy std')
+# ax.errorbar(C_range_text, f1_score, yerr=f1_std, fmt='o', label='F1 score std')
+# ax.set_xlabel('L1 Penalty')
+# ax.set_ylabel('Score')
+# ax.set_title('Altering L1 Penalty for Compas Scores')
+# plt.legend()
+# plt.show()
 
 
 
