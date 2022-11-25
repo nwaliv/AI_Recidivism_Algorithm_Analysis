@@ -287,10 +287,6 @@ print(f)
 print('-----------------decile score for african american-----------------')
 print(df[(df['race']) == 'African-American']['decile_score'].describe())
 
-decile = [1,2,3,4,5,6,7,8,9,10]
-
-
-
 
 # logistic regression with predicted class
 X_train, X_test, y_train, y_test = train_test_split(X, compas_score, test_size=0.2, random_state=0)
