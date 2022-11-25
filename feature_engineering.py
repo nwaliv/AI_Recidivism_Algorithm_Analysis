@@ -156,15 +156,23 @@ mean_age = df_age.mean()
 age_feature_squared = []
 age_feature = []
 for age in df_age:
-    age_feature.append(age/mean_age)
-    age_feature_squared.append((age/mean_age)**2)
+    if(age/mean_age) > 2:
+        age_feature.append(2)
+        age_feature_squared.append((2)**2)
+    else:
+        age_feature.append(age/mean_age)
+        age_feature_squared.append((age/mean_age)**2)
+    
 
-mean_stay = df['length_of_stay'].mean()
 jail_feature = []
 jail_feature_squared = []
 for jail in df['length_of_stay']:
-    jail_feature.append(jail/mean_stay)
-    jail_feature_squared.append((jail/mean_stay)**2)
+    if(jail/365) > 1:
+        jail_feature.append(1)
+        jail_feature_squared.append((1)**2)
+    else:
+        jail_feature.append(jail/365)
+        jail_feature_squared.append((jail/365)**2)
 
 
 X = np.column_stack((crime_factor, male, female, no_prior_convictions, one_prior, multiple_prior, many_prior, juvinile_felonies, juvinile_misconduct, juvinile_other, days, weeks, months, years, jail_feature, jail_feature_squared, twenties_and_less, thirties, fourties, fifties_and_more, age_feature, age_feature_squared, AfAmerican, Caucasian, Hispanic, Other))
@@ -297,16 +305,13 @@ print(y)
 # Plot the predicted vs actual results
 plt.rc('font', size=10)
 print('Accuracy : {:.2f}'.format(model.score(X, two_year_recid)))
-plt.scatter(age_and_jail[y_pred_train == 1, 0], age_and_jail[y_pred_train == 1, 1], marker='o', s=30, color = 'k', label='Predicted Recid')
-plt.scatter(age_and_jail[y_pred_train == 0, 0], age_and_jail[y_pred_train == 0, 1], marker='o', s=30, color = 'r', label='Predicted No Recid')
-plt.scatter(age_and_jail[y == 1, 0], age_and_jail[y == 1, 1], marker='o', s=6, color = 'm', label='True Recid')
-plt.scatter(age_and_jail[y == 0, 0], age_and_jail[y == 0, 1], marker='o', s=6, color = 'c', label='True No Recid')
+plt.scatter(age_and_jail[y_pred_train == 1, 0], age_and_jail[y_pred_train == 1, 1], marker='o', s=75, color = 'k', label='Predicted Recid')
+plt.scatter(age_and_jail[y_pred_train == 0, 0], age_and_jail[y_pred_train == 0, 1], marker='o', s=75, color = 'r', label='Predicted No Recid')
+plt.scatter(age_and_jail[y == 1, 0], age_and_jail[y == 1, 1], marker='o', s=25, color = 'm', label='True Recid')
+plt.scatter(age_and_jail[y == 0, 0], age_and_jail[y == 0, 1], marker='o', s=25, color = 'c', label='True No Recid')
 plt.legend()
 plt.xlabel("Age Feature")
 plt.ylabel("Jail Feature")
 plt.title("Predicted Values VS True Values, Accuracy : {:.2f}".format(model.score(X, two_year_recid)))
 plt.show()
-
-
-
 
