@@ -135,34 +135,61 @@ x_lables = [ 'Crime factor', 'Gender factor', 'Priors count', 'Juvinile felonies
 
 
 N_range = np.arange(1, 50)
-print(N_range)
+#print(N_range)
 # knn  with true class
-mean_score = []
+acc_mean_score = []; acc_std_score = []
+f1_mean_score = []; f1_std_score = []
 from sklearn.neighbors import KNeighborsClassifier
 for i in N_range:
     knn = KNeighborsClassifier(n_neighbors=i)
     
     from sklearn.model_selection import cross_val_score
-    scores = cross_val_score(knn, X, np.ravel(two_year_recid), cv=5)
+    accuracy_scores = cross_val_score(knn, X, np.ravel(two_year_recid), cv=5, scoring='accuracy')
+    f1_scores = cross_val_score(knn, X, np.ravel(two_year_recid), cv=5, scoring='f1')
     # print('-----------------knn with true class-----------------')
     # print('cross validation scores', scores)
     # print('cross validation mean score', scores.mean())
 
-    mean_score.append(scores.mean())
-
-
+    acc_mean_score.append(accuracy_scores.mean())
+    acc_std_score.append(accuracy_scores.std())
+    f1_mean_score.append(f1_scores.mean())
+    f1_std_score.append(f1_scores.std())
 
 import matplotlib.pyplot as plt
-fig = plt.figure()
-ax = fig.subplots(1,1)
-ax.plot(N_range, mean_score)
-ax.set_xlabel('N')
-ax.set_ylabel('Mean score')
-ax.set_title('Mean score for different N')
+#fig = plt.figure()
+#ax = fig.subplots(1,1)
+#ax.plot(N_range, mean_score)
+plt.errorbar(N_range, acc_mean_score, yerr=acc_std_score, linewidth=3)
+plt.errorbar(N_range, f1_mean_score, yerr=f1_std_score, linewidth=3)
+plt.xlabel('K')
+plt.ylabel('Mean score')
+plt.legend(["Accuracy ", "F1 Score"])
+plt.title('Altering K in KNN model (for Actual Recidivsm Rates)')
 plt.show()
 
 
+acc_mean_score = []; acc_std_score = []
+f1_mean_score = []; f1_std_score = []
+for i in N_range:
+    knn = KNeighborsClassifier(n_neighbors=i)
+    
+    from sklearn.model_selection import cross_val_score
+    accuracy_scores = cross_val_score(knn, X, np.ravel(f_score_text), cv=5, scoring='accuracy')
+    f1_scores = cross_val_score(knn, X, np.ravel(f_score_text), cv=5, scoring='f1')
+    # print('-----------------knn with true class-----------------')
+    # print('cross validation scores', scores)
+    # print('cross validation mean score', scores.mean())
 
+    acc_mean_score.append(accuracy_scores.mean())
+    acc_std_score.append(accuracy_scores.std())
+    f1_mean_score.append(f1_scores.mean())
+    f1_std_score.append(f1_scores.std())
 
-
-
+#ax2 = fig.subplots(1,2)
+plt.errorbar(N_range, acc_mean_score, yerr=acc_std_score, linewidth=3)
+plt.errorbar(N_range, f1_mean_score, yerr=f1_std_score, linewidth=3)
+plt.xlabel('K')
+plt.ylabel('Mean score')
+plt.legend(["Accuracy", "F1 Score"])
+plt.title('Altering K in KNN Model (for COMPAS Scores)')
+plt.show()
