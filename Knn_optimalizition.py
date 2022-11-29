@@ -178,9 +178,19 @@ ax.legend(['Accuracy', 'F1'], loc='upper right')
 plt.show()
 
 
+acc_mean_score = []; acc_std_score = []
+f1_mean_score = []; f1_std_score = []
+for i in N_range:
+    knn = KNeighborsClassifier(n_neighbors=i)
+    
+    from sklearn.model_selection import cross_val_score
+    accuracy_scores = cross_val_score(knn, X, np.ravel(f_score_text), cv=5, scoring='accuracy')
+    f1_scores = cross_val_score(knn, X, np.ravel(f_score_text), cv=5, scoring='f1')
+    # print('-----------------knn with true class-----------------')
+    # print('cross validation scores', scores)
+    # print('cross validation mean score', scores.mean())
 
-
-
-
-
-
+    acc_mean_score.append(accuracy_scores.mean())
+    acc_std_score.append(accuracy_scores.std())
+    f1_mean_score.append(f1_scores.mean())
+    f1_std_score.append(f1_scores.std())

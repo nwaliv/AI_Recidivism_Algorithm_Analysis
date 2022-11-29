@@ -132,47 +132,63 @@ x_lables = [ 'Crime factor', 'Gender factor', 'Priors count', 'Juvinile felonies
 from sklearn.neural_network import MLPClassifier
 from sklearn.model_selection import cross_val_score
 mean_error=[]; std_error=[]
-
+mean_error_2=[]; std_error_2=[]
 cross_val_no_layers = False
 if cross_val_no_layers:
-    hidden_layer_range = [5,10,25,50,75,100]
+    hidden_layer_range = [5,10,25,50,100,250]
     for n in hidden_layer_range:
         print("Hidden Layer Size: %d\n"%n)
         model = MLPClassifier(hidden_layer_sizes=(n), max_iter=1000)
         # f_score_text - the predicted chances of recidivism
         # two_year_recid - the actual recidivism occurences
-        scores = cross_val_score(model, X, np.ravel(f_score_text), cv=5, scoring='f1')
-        #scores = cross_val_score(model, X, np.ravel(two_year_recid), cv=5, scoring='f1')
-        mean_error.append(np.array(scores).mean())
-        std_error.append(np.array(scores).std())
+        acc_scores = cross_val_score(model, X, np.ravel(two_year_recid), cv=5, scoring='accuracy')
+        f1_scores = cross_val_score(model, X, np.ravel(two_year_recid), cv=5, scoring='f1')
+        # acc_scores = cross_val_score(model, X, np.ravel(f_score_text), cv=5, scoring='accuracy')
+       # f1_scores = cross_val_score(model, X, np.ravel(f_score_text), cv=5, scoring='f1')
+        mean_error.append(np.array(acc_scores).mean())
+        std_error.append(np.array(acc_scores).std())
+        mean_error_2.append(np.array(f1_scores).mean())
+        std_error_2.append(np.array(f1_scores).std())
     plt.errorbar(hidden_layer_range, mean_error, yerr=std_error, linewidth=3)
-    plt.xlabel("#hidden layer nodes"); plt.ylabel('F1')
-    plt.title("Cross validation for # Nodes")
+    plt.errorbar(hidden_layer_range, mean_error_2, yerr=std_error_2, linewidth=3)
+    plt.xlabel("#hidden layer nodes"); plt.ylabel('scores')
+    plt.legend(["Accuracy", "F1 Score"])
+    plt.title("Altering # of Hidden Layer Nodes (for Recidivism Rates)")
+    #plt.title("Altering # of Hidden Layer Nodes (for COMPAS Scores)")
     plt.show()
 
 
-cross_val_C = False
+cross_val_C = True
 if cross_val_C:
     mean_error=[]; std_error=[]
-    C_range = [1,5,10,50, 100]
+    mean_error_2=[]; std_error_2=[]
+    C_range = [1,5,10,50,100, 250, 500]
     for Ci in C_range:
         print("C: %d\n"%Ci)
-        # from prev crossval, best to use no. of nodes = 10 for both pred and actual
+        # from prev crossval, best to use no. of nodes = 10, 25 for both pred and actual
         model = MLPClassifier(hidden_layer_sizes=(10), max_iter=1000)
         # f_score_text - the predicted chances of recidivism
         # two_year_recid - the actual recidivism occurences
-        scores = cross_val_score(model, X, np.ravel(f_score_text), cv=5, scoring='f1')
-        #scores = cross_val_score(model, X, np.ravel(two_year_recid), cv=5, scoring='f1')
-        mean_error.append(np.array(scores).mean())
-        std_error.append(np.array(scores).std())
+       # acc_scores = cross_val_score(model, X, np.ravel(f_score_text), cv=5, scoring='accuracy')
+        #f1_scores = cross_val_score(model, X, np.ravel(f_score_text), cv=5, scoring='f1')
+        acc_scores = cross_val_score(model, X, np.ravel(two_year_recid), cv=5, scoring='accuracy')
+        f1_scores = cross_val_score(model, X, np.ravel(two_year_recid), cv=5, scoring='f1')
+        mean_error.append(np.array(f1_scores).mean())
+        std_error.append(np.array(f1_scores).std())
+        mean_error_2.append(np.array(acc_scores).mean())
+        std_error_2.append(np.array(acc_scores).std())
+
     plt.errorbar(C_range, mean_error, yerr=std_error, linewidth=3)
-    plt.xlabel("C"); plt.ylabel('F1')
-    plt.title("Cross validation for C")
+    plt.errorbar(C_range, mean_error_2, yerr=std_error_2, linewidth=3)
+    plt.xlabel("C"); plt.ylabel('scores')
+    plt.legend(["Accuracy", "F1 Score"])
+    #plt.title("Altering L2 Penalty (for COMPAS Scores)")
+    plt.title("Altering L2 Penalty (for Recidivism Rates)")
     plt.show()
 
 
 # Comparing the Predicted Recidivsm and the Actual Recidivism Models by Confusion Matrices
-model = MLPClassifier(hidden_layer_sizes=(10), alpha=1/5).fit(X, np.ravel(two_year_recid))
+model = MLPClassifier(hidden_layer_sizes=(10), alpha=1/100).fit(X, np.ravel(two_year_recid))
 preds = model.predict(X)
 from sklearn.metrics import confusion_matrix
 print("Confusion Matrix for Recdivism Rates")
@@ -184,7 +200,7 @@ ydummy = dummy.predict(X)
 print("Confusion Matrix for Baseline Classifier")
 print(confusion_matrix(np.ravel(two_year_recid),ydummy))
 
-model = MLPClassifier(hidden_layer_sizes=(10), alpha=1/10).fit(X, np.ravel(f_score_text))
+model = MLPClassifier(hidden_layer_sizes=(10), alpha=1/100).fit(X, np.ravel(f_score_text))
 preds = model.predict(X)
 from sklearn.metrics import confusion_matrix
 print("Confusion Matrix for  COMPAS Score")
