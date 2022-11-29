@@ -134,32 +134,50 @@ x_lables = [ 'Crime factor', 'Gender factor', 'Priors count', 'Juvinile felonies
 #------ cross validation ------
 
 
-N_range = np.arange(1, 50)
+N_range = np.arange(1, 20)
 print(N_range)
 # knn  with true class
-mean_score = []
+mean_score_recid_accurcy= []
+mean_score_recid_f1= []
+
+std_score_recid_accurcy = []
+std_score_recid_f1 = []
+
 from sklearn.neighbors import KNeighborsClassifier
 for i in N_range:
     knn = KNeighborsClassifier(n_neighbors=i)
     
     from sklearn.model_selection import cross_val_score
-    scores = cross_val_score(knn, X, np.ravel(two_year_recid), cv=5)
+    scores_recid_accurcy = cross_val_score(knn, X, np.ravel(two_year_recid), cv=5, scoring='accuracy')
+    scores_recid_f1 = cross_val_score(knn, X, np.ravel(f_score_text), cv=5, scoring='f1')
+
     # print('-----------------knn with true class-----------------')
     # print('cross validation scores', scores)
     # print('cross validation mean score', scores.mean())
+    
+    mean_score_recid_accurcy.append(scores_recid_accurcy.mean())
+    std_score_recid_accurcy.append(scores_recid_accurcy.std())
+    mean_score_recid_f1.append(scores_recid_f1.mean())
+    std_score_recid_f1.append(scores_recid_f1.std())
 
-    mean_score.append(scores.mean())
+   
+
+    
 
 
 
 import matplotlib.pyplot as plt
 fig = plt.figure()
 ax = fig.subplots(1,1)
-ax.plot(N_range, mean_score)
-ax.set_xlabel('N')
-ax.set_ylabel('Mean score')
-ax.set_title('Mean score for different N')
+ax.errorbar(N_range, mean_score_recid_accurcy, yerr=std_score_recid_accurcy, label='Accuracy')
+ax.errorbar(N_range, mean_score_recid_f1, yerr=std_score_recid_f1, label='F1')
+ax.set_xlabel('K')
+ax.set_ylabel('Score')
+ax.set_title('KNN trained on recidivism score')
+ax.legend(['Accuracy', 'F1'], loc='upper right')
 plt.show()
+
+
 
 
 
