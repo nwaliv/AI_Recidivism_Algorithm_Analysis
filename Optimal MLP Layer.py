@@ -117,7 +117,7 @@ for race in df['race']:
         Hispanic.append(0)
         Other.append(1)
 
-X = np.column_stack((  AfAmerican, Caucasian, Hispanic, Other, crime_factor, f_gender, priors_count, juvinile_felonies, juvinile_misconduct, juvinile_other, quick_stay, short_stay, medium_stay, long_stay, twenties_and_less, thirties, fourties, fifties_and_more))
+X = np.column_stack(( crime_factor, f_gender, priors_count, juvinile_felonies, juvinile_misconduct, juvinile_other, quick_stay, short_stay, medium_stay, long_stay, twenties_and_less, thirties, fourties, fifties_and_more))
 
 #For target class
 f_score_text, u_score_text = pd.factorize(df['score_text'] != 'Low')
@@ -125,7 +125,7 @@ f_score_text, u_score_text = pd.factorize(df['score_text'] != 'Low')
 two_year_recid = df[['two_year_recid\r']]
 
 
-x_lables = [ 'Crime factor', 'Gender factor', 'Priors count', 'Juvinile felonies', 'Juvinile misconduct', 'Juvinile other', 'Quick stay', 'Short stay', 'Medium stay', 'Long stay', 'Twenties and less', 'Thirties', 'Fourties', 'Fifties and more', 'African American', 'Caucasian', 'Hispanic', 'Other Race']
+x_lables = [ 'Crime factor', 'Gender factor', 'Priors count', 'Juvinile felonies', 'Juvinile misconduct', 'Juvinile other', 'Quick stay', 'Short stay', 'Medium stay', 'Long stay', 'Twenties and less', 'Thirties', 'Fourties', 'Fifties and more']
 
 
 # cross-validation for MLP takes a while so set them to false if you want to run only the last section

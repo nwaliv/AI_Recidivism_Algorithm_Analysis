@@ -14,7 +14,6 @@ df = df.loc[(df['days_b_screening_arrest'] <= 30) & (df['days_b_screening_arrest
 df['length_of_stay'] = pd.to_datetime(df['c_jail_out']) - pd.to_datetime(df['c_jail_in'])
 df['length_of_stay'] = df['length_of_stay'].astype('timedelta64[D]')
 df['length_of_stay'] = df['length_of_stay'].astype(int)
-length_factor, u_length_degree = pd.factorize(df['length_of_stay'])
 
 days = []
 weeks = []
@@ -42,6 +41,17 @@ for length in df['length_of_stay']:
         weeks.append(0)
         months.append(0)
         years.append(1)
+
+jail_feature = []
+jail_feature_squared = []
+for jail in df['length_of_stay']:
+    if(jail/365) > 1:
+        jail_feature.append(1)
+        jail_feature_squared.append((1)**2)
+    else:
+        jail_feature.append(jail/365)
+        jail_feature_squared.append((jail/365)**2)
+
         
 #Age Category Feature
 df_age = df['age'].astype(int)
@@ -74,14 +84,25 @@ for age in df_age:
         fourties.append(0)
         fifties_and_more.append(1)
 
+mean_age = df_age.mean()
+age_feature_squared = []
+age_feature = []
+for age in df_age:
+    if(age/mean_age) > 2:
+        age_feature.append(2)
+        age_feature_squared.append((2)**2)
+    else:
+        age_feature.append(age/mean_age)
+        age_feature_squared.append((age/mean_age)**2)
+
 
 # Degree of charge feature
 df_c_charge_degree = df['c_charge_degree']
 crime_factor, u_charge_degree = pd.factorize(df_c_charge_degree)
 
+# Gender
 male = []
 female = []
-# Gender
 for gender in df['sex']:
     if gender == "Male":
         male.append(1)
@@ -91,7 +112,7 @@ for gender in df['sex']:
         female.append(1)
 
 
-# Prior convictions
+# Prior juvinile convictions
 juvinile_felonies  = df['juv_fel_count'].astype(int)
 juvinile_misconduct  = df['juv_misd_count'].astype(int)
 juvinile_other  = df['juv_other_count'].astype(int)
@@ -152,19 +173,6 @@ for race in df['race']:
         Hispanic.append(0)
         Other.append(1)
 
-mean_age = df_age.mean()
-age_feature_squared = []
-age_feature = []
-for age in df_age:
-    age_feature.append(age/mean_age)
-    age_feature_squared.append((age/mean_age)**2)
-
-mean_stay = df['length_of_stay'].mean()
-jail_feature = []
-jail_feature_squared = []
-for jail in df['length_of_stay']:
-    jail_feature.append(jail/mean_stay)
-    jail_feature_squared.append((jail/mean_stay)**2)
 
 
 X = np.column_stack((crime_factor, male, female, no_prior_convictions, one_prior, multiple_prior, many_prior, juvinile_felonies, juvinile_misconduct, juvinile_other, days, weeks, months, years, jail_feature, jail_feature_squared, twenties_and_less, thirties, fourties, fifties_and_more, age_feature, age_feature_squared, AfAmerican, Caucasian, Hispanic, Other))
@@ -279,10 +287,6 @@ print(f)
 print('-----------------decile score for african american-----------------')
 print(df[(df['race']) == 'African-American']['decile_score'].describe())
 
-decile = [1,2,3,4,5,6,7,8,9,10]
-
-
-
 
 # logistic regression with predicted class
 X_train, X_test, y_train, y_test = train_test_split(X, compas_score, test_size=0.2, random_state=0)
@@ -297,16 +301,13 @@ print(y)
 # Plot the predicted vs actual results
 plt.rc('font', size=10)
 print('Accuracy : {:.2f}'.format(model.score(X, two_year_recid)))
-plt.scatter(age_and_jail[y_pred_train == 1, 0], age_and_jail[y_pred_train == 1, 1], marker='o', s=30, color = 'k', label='Predicted Recid')
-plt.scatter(age_and_jail[y_pred_train == 0, 0], age_and_jail[y_pred_train == 0, 1], marker='o', s=30, color = 'r', label='Predicted No Recid')
-plt.scatter(age_and_jail[y == 1, 0], age_and_jail[y == 1, 1], marker='o', s=6, color = 'm', label='True Recid')
-plt.scatter(age_and_jail[y == 0, 0], age_and_jail[y == 0, 1], marker='o', s=6, color = 'c', label='True No Recid')
+plt.scatter(age_and_jail[y_pred_train == 1, 0], age_and_jail[y_pred_train == 1, 1], marker='o', s=75, color = 'k', label='Predicted Recid')
+plt.scatter(age_and_jail[y_pred_train == 0, 0], age_and_jail[y_pred_train == 0, 1], marker='o', s=75, color = 'r', label='Predicted No Recid')
+plt.scatter(age_and_jail[y == 1, 0], age_and_jail[y == 1, 1], marker='o', s=25, color = 'm', label='True Recid')
+plt.scatter(age_and_jail[y == 0, 0], age_and_jail[y == 0, 1], marker='o', s=25, color = 'c', label='True No Recid')
 plt.legend()
 plt.xlabel("Age Feature")
 plt.ylabel("Jail Feature")
 plt.title("Predicted Values VS True Values, Accuracy : {:.2f}".format(model.score(X, two_year_recid)))
 plt.show()
-
-
-
 
