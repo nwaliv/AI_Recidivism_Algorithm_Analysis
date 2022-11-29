@@ -134,13 +134,6 @@ x_lables = [ 'Crime factor', 'Gender factor', 'Priors count', 'Juvinile felonies
 #------ cross validation ------
 
 
-<<<<<<< HEAD:Find_optimal_model.py
-N_range = np.arange(1, 50)
-#print(N_range)
-# knn  with true class
-acc_mean_score = []; acc_std_score = []
-f1_mean_score = []; f1_std_score = []
-=======
 N_range = np.arange(1, 20)
 print(N_range)
 # knn  with true class
@@ -150,20 +143,14 @@ mean_score_recid_f1= []
 std_score_recid_accurcy = []
 std_score_recid_f1 = []
 
->>>>>>> 0bf245387feb563b6a653ca7120bf60ed62b4789:Knn_optimalizition.py
 from sklearn.neighbors import KNeighborsClassifier
 for i in N_range:
     knn = KNeighborsClassifier(n_neighbors=i)
     
     from sklearn.model_selection import cross_val_score
-<<<<<<< HEAD:Find_optimal_model.py
-    accuracy_scores = cross_val_score(knn, X, np.ravel(two_year_recid), cv=5, scoring='accuracy')
-    f1_scores = cross_val_score(knn, X, np.ravel(two_year_recid), cv=5, scoring='f1')
-=======
     scores_recid_accurcy = cross_val_score(knn, X, np.ravel(two_year_recid), cv=5, scoring='accuracy')
     scores_recid_f1 = cross_val_score(knn, X, np.ravel(f_score_text), cv=5, scoring='f1')
 
->>>>>>> 0bf245387feb563b6a653ca7120bf60ed62b4789:Knn_optimalizition.py
     # print('-----------------knn with true class-----------------')
     # print('cross validation scores', scores)
     # print('cross validation mean score', scores.mean())
@@ -173,23 +160,6 @@ for i in N_range:
     mean_score_recid_f1.append(scores_recid_f1.mean())
     std_score_recid_f1.append(scores_recid_f1.std())
 
-<<<<<<< HEAD:Find_optimal_model.py
-    acc_mean_score.append(accuracy_scores.mean())
-    acc_std_score.append(accuracy_scores.std())
-    f1_mean_score.append(f1_scores.mean())
-    f1_std_score.append(f1_scores.std())
-
-import matplotlib.pyplot as plt
-#fig = plt.figure()
-#ax = fig.subplots(1,1)
-#ax.plot(N_range, mean_score)
-plt.errorbar(N_range, acc_mean_score, yerr=acc_std_score, linewidth=3)
-plt.errorbar(N_range, f1_mean_score, yerr=f1_std_score, linewidth=3)
-plt.xlabel('K')
-plt.ylabel('Mean score')
-plt.legend(["Accuracy ", "F1 Score"])
-plt.title('Altering K in KNN model (for Actual Recidivsm Rates)')
-=======
    
 
     
@@ -205,7 +175,6 @@ ax.set_xlabel('K')
 ax.set_ylabel('Score')
 ax.set_title('KNN trained on recidivism score')
 ax.legend(['Accuracy', 'F1'], loc='upper right')
->>>>>>> 0bf245387feb563b6a653ca7120bf60ed62b4789:Knn_optimalizition.py
 plt.show()
 
 
@@ -225,19 +194,3 @@ for i in N_range:
     acc_std_score.append(accuracy_scores.std())
     f1_mean_score.append(f1_scores.mean())
     f1_std_score.append(f1_scores.std())
-
-<<<<<<< HEAD:Find_optimal_model.py
-#ax2 = fig.subplots(1,2)
-plt.errorbar(N_range, acc_mean_score, yerr=acc_std_score, linewidth=3)
-plt.errorbar(N_range, f1_mean_score, yerr=f1_std_score, linewidth=3)
-plt.xlabel('K')
-plt.ylabel('Mean score')
-plt.legend(["Accuracy", "F1 Score"])
-plt.title('Altering K in KNN Model (for COMPAS Scores)')
-plt.show()
-=======
-
-
-
-
->>>>>>> 0bf245387feb563b6a653ca7120bf60ed62b4789:Knn_optimalizition.py
