@@ -386,8 +386,3 @@ ax.set_ylabel('Score')
 ax.set_title('Altering L2 Penalty for Recidivism Rates')
 plt.legend()
 plt.show()
-
-
-
-
-
