@@ -326,7 +326,7 @@ f1_std = []
 
 from sklearn.svm import LinearSVC
 for i in C_range:
-    svm = LinearSVC(C=i, max_iter = 100)
+    svm = LinearSVC(C=i, max_iter = 20000)
     from sklearn.model_selection import cross_val_score
     scores = cross_val_score(svm, X, np.ravel(compas_score), cv=5)
     f1 = cross_val_score(svm, X, np.ravel(compas_score), cv=5, scoring='f1')
@@ -360,7 +360,7 @@ f1_std = []
 
 from sklearn.svm import LinearSVC
 for i in C_range:
-    svm = LinearSVC(C=i, max_iter = 100)
+    svm = LinearSVC(C=i, max_iter = 50000)
     from sklearn.model_selection import cross_val_score
     scores = cross_val_score(svm, X, np.ravel(two_year_recid), cv=5)
     f1 = cross_val_score(svm, X, np.ravel(two_year_recid), cv=5, scoring='f1')
